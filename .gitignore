@@ -1,0 +1,22 @@
+﻿# Publicación y carpetas temporales
+App/
+Staging/
+Backups/
+
+# Compilación .NET
+**/bin/
+**/obj/
+
+# Configuración con credenciales
+**/appsettings.Production.json
+
+# Archivos locales
+.vs/
+.vscode/
+*.user
+*.suo
+*.log
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
