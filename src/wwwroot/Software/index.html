@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Software | Tradipres Endpoint Manager</title>
+  <link rel="stylesheet" href="/css/app.css?v=0.13.0">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegación principal">
+      <div class="brand">
+        <div class="brand-mark">T</div>
+        <div>
+          <strong>Tradipres</strong>
+          <span>Endpoint Manager</span>
+        </div>
+      </div>
+
+      <nav class="nav-list">
+        <a class="nav-item" href="/">
+          <span class="nav-icon">⌂</span><span>Dashboard</span>
+        </a>
+        <a class="nav-item" href="/equipos/">
+          <span class="nav-icon">▣</span><span>Equipos</span>
+        </a>
+        <a class="nav-item active" href="/Software/" aria-current="page"><span class="nav-icon">⬡</span><span>Software</span></a>
+        <a class="nav-item disabled" href="#"><span class="nav-icon">⚙</span><span>Servicios</span></a>
+        <a class="nav-item disabled" href="#"><span class="nav-icon">›_</span><span>PowerShell</span></a>
+        <a class="nav-item disabled" href="#"><span class="nav-icon">✓</span><span>Tareas</span></a>
+        <a class="nav-item" href="/Mantenimientos/"><span class="nav-icon">⟳</span><span>Mantenimientos</span></a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span id="apiIndicator" class="service-dot checking"></span>
+        <div>
+          <strong id="apiState">Comprobando servidor</strong>
+          <span id="serverVersion">Versión —</span>
+        </div>
+        <button id="logoutButton" class="logout-button" type="button">Salir</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Inventariado de software</p>
+          <h1>Software</h1>
+          <p class="subtitle">Programas instalados en los equipos, agrupados por versión y fabricante.</p>
+        </div>
+        <div class="topbar-actions">
+          <span class="last-update">Actualizado <strong id="lastUpdate">—</strong></span>
+          <button id="refreshButton" class="button primary" type="button">Actualizar</button>
+        </div>
+      </header>
+
+      <section id="alertBox" class="alert hidden" role="alert"></section>
+
+      <section class="summary-grid" aria-label="Resumen">
+        <article class="summary-card">
+          <div class="summary-icon neutral">⬡</div>
+          <div>
+            <span>Programas distintos</span>
+            <strong id="programCount">—</strong>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-icon online">●</div>
+          <div>
+            <span>Instalaciones totales</span>
+            <strong id="installCount">—</strong>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-icon database">EQ</div>
+          <div>
+            <span>Equipos inventariados</span>
+            <strong id="machineCount">—</strong>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-icon offline">●</div>
+          <div>
+            <span>Equipos sin software</span>
+            <strong id="missingCount">—</strong>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Software instalado</h2>
+            <p>Pulsa el número de equipos de un programa para ver en qué máquinas está instalado.</p>
+          </div>
+          <div class="filters">
+            <label class="search-box">
+              <span class="sr-only">Buscar software</span>
+              <input id="softwareSearch" type="search" placeholder="Buscar programa, versión o fabricante…" autocomplete="off">
+            </label>
+            <button id="groupToggle" class="filter-toggle active" type="button" aria-pressed="true">Agrupar por fabricante</button>
+          </div>
+        </div>
+
+        <div id="tagBar" class="tag-bar" aria-label="Filtrar por etiquetas de fabricante"></div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Programa</th>
+                <th>Versión</th>
+                <th>Fabricante</th>
+                <th>Arquitectura</th>
+                <th>Equipos</th>
+              </tr>
+            </thead>
+            <tbody id="softwareTableBody">
+              <tr><td colspan="5" class="loading-cell">Cargando software…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="tableNote" class="table-note hidden"></div>
+
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-icon">⬡</div>
+          <h3>No se ha encontrado software</h3>
+          <p>Prueba con otro término de búsqueda.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="machinesDialog" class="details-dialog">
+    <div class="dialog-header">
+      <div>
+        <p class="eyebrow">Equipos con este programa</p>
+        <h2 id="machinesProgramName">Programa</h2>
+      </div>
+      <button id="closeMachinesDialog" class="icon-button" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <div id="machinesLoading" class="detail-loading hidden">Cargando equipos…</div>
+    <div id="machinesList" class="machine-list"></div>
+  </dialog>
+
+  <script src="/js/auth.js?v=0.13.0" defer></script>
+  <script src="/js/sidebar.js?v=0.10.0" defer></script>
+  <script src="/js/software.js?v=0.10.0" defer></script>
+</body>
+</html>

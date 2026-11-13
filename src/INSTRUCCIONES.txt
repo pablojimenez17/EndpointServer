@@ -1,0 +1,33 @@
+TRADIPRES ENDPOINT MANAGER - DASHBOARD v0.2
+
+ARCHIVOS QUE DEBES SUSTITUIR/COPIAR
+
+1. Sustituir:
+   D:\Tradipres\EndpointServer\src\wwwroot\index.html
+
+2. Crear las carpetas si no existen y copiar:
+   D:\Tradipres\EndpointServer\src\wwwroot\css\app.css
+   D:\Tradipres\EndpointServer\src\wwwroot\js\app.js
+
+3. Program.cs se incluye como referencia completa, pero coincide con la versión estable
+   y ya contiene UseDefaultFiles(), UseStaticFiles() y MapFallbackToFile().
+
+PRUEBA LOCAL
+
+cd D:\Tradipres\EndpointServer\src
+dotnet build
+dotnet run
+
+Abrir:
+http://localhost:5000/
+
+PUBLICACION
+
+Cuando la prueba local sea correcta:
+
+dotnet publish -c Release -o D:\Tradipres\EndpointServer\Staging
+
+Después despliega Staging en App con IIS detenido, conservando el appsettings.json
+correcto de producción.
+
+NO HAY CAMBIOS EN SQL NI EN EL AGENTE.

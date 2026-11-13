@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Mantenimientos | Tradipres Endpoint Manager</title>
+  <link rel="stylesheet" href="/css/app.css?v=0.13.0">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegación principal">
+      <div class="brand">
+        <div class="brand-mark">T</div>
+        <div>
+          <strong>Tradipres</strong>
+          <span>Endpoint Manager</span>
+        </div>
+      </div>
+
+      <nav class="nav-list">
+        <a class="nav-item" href="/">
+          <span class="nav-icon">⌂</span><span>Dashboard</span>
+        </a>
+        <a class="nav-item" href="/equipos/">
+          <span class="nav-icon">▣</span><span>Equipos</span>
+        </a>
+        <a class="nav-item" href="/Software/"><span class="nav-icon">⬡</span><span>Software</span></a>
+        <a class="nav-item disabled" href="#"><span class="nav-icon">⚙</span><span>Servicios</span></a>
+        <a class="nav-item disabled" href="#"><span class="nav-icon">›_</span><span>PowerShell</span></a>
+        <a class="nav-item disabled" href="#"><span class="nav-icon">✓</span><span>Tareas</span></a>
+        <a class="nav-item active" href="/Mantenimientos/" aria-current="page">
+          <span class="nav-icon">⟳</span><span>Mantenimientos</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span id="apiIndicator" class="service-dot checking"></span>
+        <div>
+          <strong id="apiState">Comprobando servidor</strong>
+          <span id="serverVersion">Versión —</span>
+        </div>
+        <button id="logoutButton" class="logout-button" type="button">Salir</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Seguimiento</p>
+          <h1>Mantenimientos</h1>
+          <p class="subtitle">Todas las tareas programadas de todos los equipos, en una sola vista.</p>
+        </div>
+        <div class="topbar-actions">
+          <span class="last-update">Actualizado <strong id="lastUpdate">—</strong></span>
+          <button id="refreshButton" class="button primary" type="button">Actualizar</button>
+        </div>
+      </header>
+
+      <section id="alertBox" class="alert hidden" role="alert"></section>
+
+      <section class="summary-grid" aria-label="Resumen">
+        <article class="summary-card">
+          <div class="summary-icon neutral">●</div>
+          <div>
+            <span>Total de tareas</span>
+            <strong id="totalCount">—</strong>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-icon online">●</div>
+          <div>
+            <span>Pendientes</span>
+            <strong id="pendingCount">—</strong>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-icon database">●</div>
+          <div>
+            <span>Diarios activos</span>
+            <strong id="diarioCount">—</strong>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-icon offline">●</div>
+          <div>
+            <span>Completados</span>
+            <strong id="doneCount">—</strong>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Tareas de mantenimiento</h2>
+            <p>Consulta rápida del estado de mantenimiento de cada equipo.</p>
+          </div>
+          <div class="filters">
+            <label class="search-box">
+              <span class="sr-only">Buscar equipo o mensaje</span>
+              <input id="searchInput" type="search" placeholder="Buscar equipo, mensaje…" autocomplete="off">
+            </label>
+            <select id="estadoFilter" aria-label="Filtrar por estado">
+              <option value="all">Todos los estados</option>
+              <option value="programado">Programado</option>
+              <option value="diario">Diario</option>
+              <option value="ejecutando">Ejecutando</option>
+              <option value="enproceso">En proceso</option>
+              <option value="completado">Completado</option>
+              <option value="cerrado">Cerrado</option>
+              <option value="error">Error</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+            <select id="equipoFilter" aria-label="Filtrar por equipo">
+              <option value="all">Todos los equipos</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="maintenanceList" class="maintenance-list">
+          <div class="loading-cell">Cargando mantenimientos…</div>
+        </div>
+
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-icon">●</div>
+          <h3>No hay tareas que coincidan</h3>
+          <p>Prueba con otro término de búsqueda o cambia los filtros.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/auth.js?v=0.13.0" defer></script>
+  <script src="/js/sidebar.js?v=0.11.2" defer></script>
+  <script src="/lib/signalr.min.js?v=0.12.1" defer></script>
+  <script src="/js/realtime.js?v=0.12.1" defer></script>
+  <script src="/js/mantenimientos.js?v=0.12.1" defer></script>
+</body>
+</html>

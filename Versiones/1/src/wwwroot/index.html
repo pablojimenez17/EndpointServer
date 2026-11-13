@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tradipres Endpoint Manager</title>
+  <style>
+    :root { font-family: Segoe UI, Arial, sans-serif; color-scheme: light; }
+    body { margin: 0; background: #f3f5f7; color: #17202a; }
+    header { background: #17202a; color: white; padding: 18px 28px; }
+    main { max-width: 1100px; margin: 28px auto; padding: 0 20px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; }
+    .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+    .label { color: #65707b; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; }
+    .value { margin-top: 8px; font-size: 24px; font-weight: 700; }
+    .ok { color: #16794a; } .bad { color: #b42318; }
+    pre { white-space: pre-wrap; font-size: 13px; }
+  </style>
+</head>
+<body>
+<header><strong>Tradipres Endpoint Manager</strong> <span style="opacity:.7">v0.2.0</span></header>
+<main>
+  <h1>Servidor Endpoint</h1>
+  <div class="grid">
+    <section class="card"><div class="label">API</div><div id="api" class="value">Comprobando...</div></section>
+    <section class="card"><div class="label">Base de datos</div><div id="db" class="value">Comprobando...</div></section>
+    <section class="card"><div class="label">SQL Server</div><div id="server" class="value">—</div></section>
+    <section class="card"><div class="label">Versión</div><div id="version" class="value">0.2.0</div></section>
+  </div>
+  <section class="card" style="margin-top:16px"><div class="label">Diagnóstico</div><pre id="raw">Cargando...</pre></section>
+</main>
+<script>
+(async () => {
+  try {
+    const r = await fetch('./api/status', {cache:'no-store'});
+    const d = await r.json();
+    const ok = r.ok;
+    document.querySelector('#api').textContent = d.api || 'ERROR';
+    document.querySelector('#api').className = 'value ' + (d.api === 'OK' ? 'ok':'bad');
+    document.querySelector('#db').textContent = d.database || 'ERROR';
+    document.querySelector('#db').className = 'value ' + (d.database === 'OK' ? 'ok':'bad');
+    document.querySelector('#server').textContent = d.server || '—';
+    document.querySelector('#version').textContent = d.version || '—';
+    document.querySelector('#raw').textContent = JSON.stringify(d, null, 2);
+  } catch (e) {
+    document.querySelector('#api').textContent = 'ERROR';
+    document.querySelector('#api').className = 'value bad';
+    document.querySelector('#raw').textContent = e.toString();
+  }
+})();
+</script>
+</body>
+</html>

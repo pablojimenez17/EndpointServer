@@ -1,0 +1,93 @@
+[
+  {
+    "mantenimientoId": 24,
+    "orden": [
+      "CopiaOutlook",
+      "ApagarEquipo"
+    ]
+  },
+  {
+    "mantenimientoId": 25,
+    "orden": [
+      "CopiaOutlook"
+    ]
+  },
+  {
+    "mantenimientoId": 26,
+    "orden": [
+      "CopiaOutlook"
+    ]
+  },
+  {
+    "mantenimientoId": 27,
+    "orden": [
+      "CopiaOutlook"
+    ]
+  },
+  {
+    "mantenimientoId": 28,
+    "orden": [
+      "CopiaOutlook"
+    ]
+  },
+  {
+    "mantenimientoId": 29,
+    "orden": [
+      "CopiaOutlook"
+    ]
+  },
+  {
+    "mantenimientoId": 34,
+    "orden": [
+      "Mantenimiento"
+    ]
+  },
+  {
+    "mantenimientoId": 35,
+    "orden": [
+      "Mantenimiento"
+    ]
+  },
+  {
+    "mantenimientoId": 41,
+    "orden": [
+      "CopiaOutlook"
+    ]
+  },
+  {
+    "mantenimientoId": 43,
+    "orden": [
+      "CopiaOutlook"
+    ]
+  },
+  {
+    "mantenimientoId": 44,
+    "orden": [
+      "CopiaOutlook"
+    ]
+  },
+  {
+    "mantenimientoId": 66,
+    "orden": [
+      "CopiaOutlook"
+    ]
+  },
+  {
+    "mantenimientoId": 67,
+    "orden": [
+      "CopiaOutlook"
+    ]
+  },
+  {
+    "mantenimientoId": 68,
+    "orden": [
+      "Mantenimiento"
+    ]
+  },
+  {
+    "mantenimientoId": 70,
+    "orden": [
+      "CopiaOutlook"
+    ]
+  }
+]

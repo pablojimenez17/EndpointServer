@@ -1,0 +1,47 @@
+TRADIPRES ENDPOINT MANAGER - SERVIDOR v0.3 CORREGIDA
+====================================================
+
+Esta entrega parte de la version estable 0.3.0 y conserva el dashboard visual v0.2.
+No modifica SQL ni el agente.
+
+ARCHIVOS A SUSTITUIR
+--------------------
+1. Program.cs
+   -> D:\Tradipres\EndpointServer\src\Program.cs
+
+2. Repositories\EquipoRepository.cs
+   -> D:\Tradipres\EndpointServer\src\Repositories\EquipoRepository.cs
+
+3. wwwroot\index.html
+   -> D:\Tradipres\EndpointServer\src\wwwroot\index.html
+
+4. wwwroot\css\app.css
+   -> D:\Tradipres\EndpointServer\src\wwwroot\css\app.css
+
+5. wwwroot\js\app.js
+   -> D:\Tradipres\EndpointServer\src\wwwroot\js\app.js
+
+No copies Tradipres.EndpointServer.csproj si ya tienes el proyecto estable: se incluye solo como referencia.
+
+PRUEBA LOCAL
+------------
+cd D:\Tradipres\EndpointServer\src
+dotnet clean
+dotnet build
+$env:ASPNETCORE_ENVIRONMENT = "Development"
+dotnet run
+
+COMPROBACIONES
+--------------
+http://localhost:5000/api/status       -> JSON
+http://localhost:5000/api/dashboard    -> JSON con total, online, offline y equipos
+http://localhost:5000/api/equipo/1     -> JSON con general, hardware, software, etc.
+http://localhost:5000/                 -> Dashboard visual
+
+En el dashboard pulsa "Ver detalles". La URL pasara a:
+http://localhost:5000/#equipo/1
+
+IMPORTANTE
+----------
+No uses /api/equipo/1 como pagina visual: esa ruta es deliberadamente JSON.
+La ficha visual se abre desde el boton "Ver detalles" o con #equipo/1.

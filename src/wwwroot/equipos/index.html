@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Equipos | Tradipres Endpoint Manager</title>
+  <link rel="stylesheet" href="/css/app.css?v=0.14.0">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegación principal">
+      <div class="brand">
+        <div class="brand-mark">T</div>
+        <div>
+          <strong>Tradipres</strong>
+          <span>Endpoint Manager</span>
+        </div>
+      </div>
+
+      <nav class="nav-list">
+        <a class="nav-item" href="/">
+          <span class="nav-icon">⌂</span><span>Dashboard</span>
+        </a>
+        <a class="nav-item active" href="/equipos/" aria-current="page">
+          <span class="nav-icon">▣</span><span>Equipos</span>
+        </a>
+        <a class="nav-item" href="/Software/"><span class="nav-icon">⬡</span><span>Software</span></a>
+        <a class="nav-item disabled" href="#"><span class="nav-icon">⚙</span><span>Servicios</span></a>
+        <a class="nav-item disabled" href="#"><span class="nav-icon">›_</span><span>PowerShell</span></a>
+        <a class="nav-item disabled" href="#"><span class="nav-icon">✓</span><span>Tareas</span></a>
+        <a class="nav-item" href="/Mantenimientos/"><span class="nav-icon">⟳</span><span>Mantenimientos</span></a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span id="apiIndicator" class="service-dot checking"></span>
+        <div>
+          <strong id="apiState">Comprobando servidor</strong>
+          <span id="serverVersion">Versión —</span>
+        </div>
+        <button id="logoutButton" class="logout-button" type="button">Salir</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Inventariado de equipos</p>
+          <h1>Equipos</h1>
+          <p class="subtitle">Características de hardware de los equipos registrados.</p>
+        </div>
+        <div class="topbar-actions">
+          <span class="last-update">Actualizado <strong id="lastUpdate">—</strong></span>
+          <div class="export-group">
+            <button id="exportCsvButton" class="button secondary" type="button" title="Exportar inventario completo en CSV">Excel</button>
+            <button id="exportPdfButton" class="button secondary" type="button" title="Exportar inventario completo en PDF">PDF</button>
+          </div>
+          <button id="refreshButton" class="button primary" type="button">Actualizar</button>
+        </div>
+      </header>
+
+      <section id="alertBox" class="alert hidden" role="alert"></section>
+
+      <section class="summary-grid" aria-label="Resumen">
+        <article class="summary-card">
+          <div class="summary-icon neutral">●</div>
+          <div>
+            <span>Total de equipos</span>
+            <strong id="totalCount">—</strong>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-icon online">●</div>
+          <div>
+            <span>Con inventario</span>
+            <strong id="inventoryCount">—</strong>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-icon offline">●</div>
+          <div>
+            <span>Sin inventario</span>
+            <strong id="noInventoryCount">—</strong>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-icon database">RAM</div>
+          <div>
+            <span>Memoria instalada</span>
+            <strong id="totalRam">—</strong>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Inventario de hardware</h2>
+            <p>Datos recogidos por el agente (WMI). El agente los envía cada 24 horas.</p>
+          </div>
+          <div class="filters">
+            <label class="search-box">
+              <span class="sr-only">Buscar equipos</span>
+              <input id="searchInput" type="search" placeholder="Buscar equipo, modelo, serie, procesador…" autocomplete="off">
+            </label>
+            <select id="stateFilter" aria-label="Filtrar por inventario">
+              <option value="all">Todos</option>
+              <option value="with">Con inventario</option>
+              <option value="without">Sin inventario</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Estado</th>
+                <th>Equipo</th>
+                <th>Responsable</th>
+                <th>Fabricante / Modelo</th>
+                <th>Número de serie</th>
+                <th>Procesador</th>
+                <th>Núcleos</th>
+                <th>RAM</th>
+                <th>Sistema operativo</th>
+                <th>IP</th>
+                <th>Último inventario</th>
+                <th>Ficha</th>
+                <th>Exportar</th>
+              </tr>
+            </thead>
+            <tbody id="equipmentTableBody">
+              <tr><td colspan="13" class="loading-cell">Cargando inventario…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-icon">●</div>
+          <h3>No se han encontrado equipos</h3>
+          <p>Prueba con otro término de búsqueda o cambia el filtro.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="detailsDialog" class="details-dialog">
+    <div class="dialog-header">
+      <div>
+        <p class="eyebrow">Ficha del equipo</p>
+        <h2 id="detailName">Equipo</h2>
+      </div>
+      <button id="closeDialog" class="icon-button" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <div id="detailStatus" class="detail-status"></div>
+    <div id="detailLoading" class="detail-loading hidden">Cargando información del equipo…</div>
+    <div id="detailContent">
+      <div class="detail-tabs" role="tablist" aria-label="Secciones de la ficha">
+        <button class="detail-tab active" type="button" role="tab" aria-selected="true" data-tab="general">General</button>
+        <button class="detail-tab" type="button" role="tab" aria-selected="false" data-tab="hardware">Hardware</button>
+        <button class="detail-tab" type="button" role="tab" aria-selected="false" data-tab="disks">Discos</button>
+        <button class="detail-tab" type="button" role="tab" aria-selected="false" data-tab="software">Software</button>
+        <button class="detail-tab" type="button" role="tab" aria-selected="false" data-tab="maintenance">Mantenimiento</button>
+        <button class="detail-tab" type="button" role="tab" aria-selected="false" data-tab="advanced">Tareas avanzadas</button>
+      </div>
+
+      <div class="detail-tab-panels">
+        <section class="detail-tab-panel active" data-panel="general" role="tabpanel">
+          <h3>Información general</h3>
+          <dl id="detailList" class="detail-grid"></dl>
+        </section>
+
+        <section class="detail-tab-panel" data-panel="hardware" role="tabpanel" hidden>
+          <h3>Hardware e inventario</h3>
+          <dl id="inventoryList" class="detail-grid"></dl>
+        </section>
+
+        <section class="detail-tab-panel" data-panel="disks" role="tabpanel" hidden>
+          <div class="detail-section-title">
+            <h3>Discos</h3>
+            <span id="diskCount" class="detail-section-note"></span>
+          </div>
+          <div id="diskList" class="disk-list"></div>
+        </section>
+
+        <section class="detail-tab-panel" data-panel="software" role="tabpanel" hidden>
+          <div class="software-toolbar">
+            <div>
+              <h3>Software instalado</h3>
+              <span id="softwareCount" class="detail-section-note">Sin cargar</span>
+            </div>
+            <input id="softwareSearch" type="search" placeholder="Buscar programa, versión o fabricante…" autocomplete="off">
+          </div>
+          <div id="softwareLoading" class="detail-loading hidden">Cargando software instalado…</div>
+          <div id="softwareList" class="software-list"></div>
+        </section>
+
+        <section class="detail-tab-panel" data-panel="maintenance" role="tabpanel" hidden>
+          <div class="detail-section-title">
+            <div>
+              <h3>Mantenimientos</h3>
+              <span id="maintenanceCount" class="detail-section-note">Sin cargar</span>
+            </div>
+            <button id="scheduleButton" class="button primary" type="button">Programar mantenimiento</button>
+          </div>
+
+          <form id="scheduleForm" class="schedule-form hidden">
+            <div class="schedule-form-header">
+              <strong>Nuevo mantenimiento</strong>
+              <span>Se agendará en el equipo y quedará pendiente de ejecución.</span>
+            </div>
+
+            <div id="scheduleError" class="schedule-error hidden"></div>
+
+            <div class="schedule-field">
+              <label>Tipo de mantenimiento</label>
+              <div class="schedule-flags">
+                <label class="schedule-flag">
+                  <input type="radio" name="scheduleType" value="Unico" checked> Único (una vez)
+                </label>
+                <label class="schedule-flag">
+                  <input type="radio" name="scheduleType" value="Diario"> Diario (recurrente)
+                </label>
+              </div>
+            </div>
+
+            <div class="schedule-grid">
+              <div class="schedule-field">
+                <label for="scheduleStart">Fecha y hora de inicio</label>
+                <input id="scheduleStart" type="datetime-local" required>
+              </div>
+            </div>
+
+            <div id="diarioOptions" class="hidden">
+              <div class="schedule-field">
+                <label>Días de la semana<i class="info-icon">i<span class="info-tip">Selecciona los días en que se repetirá el mantenimiento. Por ejemplo: lunes, miércoles y viernes.</span></i></label>
+                <div class="schedule-flags" id="scheduleDays">
+                  <label class="schedule-flag"><input type="checkbox" value="1" checked> Lunes</label>
+                  <label class="schedule-flag"><input type="checkbox" value="2" checked> Martes</label>
+                  <label class="schedule-flag"><input type="checkbox" value="3" checked> Miércoles</label>
+                  <label class="schedule-flag"><input type="checkbox" value="4" checked> Jueves</label>
+                  <label class="schedule-flag"><input type="checkbox" value="5" checked> Viernes</label>
+                  <label class="schedule-flag"><input type="checkbox" value="6"> Sábado</label>
+                  <label class="schedule-flag"><input type="checkbox" value="0"> Domingo</label>
+                </div>
+              </div>
+
+              <div class="schedule-field schedule-end">
+                <label class="schedule-check">
+                  <input type="checkbox" id="scheduleEndEnabled"> Establecer fecha de fin
+                  <i class="info-icon">i<span class="info-tip">Si lo marcas, el mantenimiento diario dejará de ejecutarse automáticamente a partir de la fecha indicada.</span></i>
+                </label>
+                <div class="schedule-end-date">
+                  <label for="scheduleEnd">Fecha de fin</label>
+                  <input id="scheduleEnd" type="date" disabled>
+                </div>
+              </div>
+            </div>
+
+            <div class="schedule-field">
+              <label>Acciones del mantenimiento<i class="info-icon">i<span class="info-tip">Marca las acciones. Las marcadas aparecerán abajo en orden de prioridad: la primera se ejecuta antes. «Apagar equipo» siempre se ejecuta al final.</span></i></label>
+              <div class="schedule-flags">
+                <label class="schedule-flag"><input id="flagOutlook" type="checkbox"> Copia Outlook</label>
+                <label class="schedule-flag"><input id="flagMaintenance" type="checkbox"> Mantenimiento</label>
+                <label class="schedule-flag"><input id="flagWindows" type="checkbox"> Reparación</label>
+                <label class="schedule-flag"><input id="flagShutdown" type="checkbox"> Apagar equipo</label>
+              </div>
+              <div id="actionOrderList" class="action-order-list hidden">
+                <span class="action-order-label">Orden de ejecución:</span>
+                <div id="actionOrderItems"></div>
+              </div>
+            </div>
+
+            <div class="schedule-field">
+              <label for="scheduleMessage">Mensaje (opcional)</label>
+              <textarea id="scheduleMessage" rows="3" maxlength="500" placeholder="Indicaciones para el responsable del equipo…"></textarea>
+            </div>
+
+            <div class="schedule-actions">
+              <button id="scheduleCancel" class="details-button" type="button">Descartar</button>
+              <button id="scheduleSubmit" class="button primary" type="submit">Guardar programación</button>
+            </div>
+          </form>
+
+          <form id="closeForm" class="schedule-form hidden">
+            <div class="schedule-form-header">
+              <strong>Cerrar mantenimiento</strong>
+              <span id="closeFormSubtitle">Se marcará como cerrado con la fecha y hora actuales.</span>
+            </div>
+
+            <div id="closeError" class="schedule-error hidden"></div>
+
+            <div class="schedule-field">
+              <label for="closeDetail">Detalle del cierre (opcional)</label>
+              <textarea id="closeDetail" rows="3" maxlength="2000"
+                        placeholder="Qué se ha hecho, p. ej. «cambiado el disco duro»…"></textarea>
+            </div>
+
+            <div class="schedule-actions">
+              <button id="closeCancel" class="details-button" type="button">Descartar</button>
+              <button id="closeSubmit" class="button primary" type="submit">Cerrar ahora</button>
+            </div>
+          </form>
+
+          <div id="maintenanceLoading" class="detail-loading hidden">Cargando mantenimientos…</div>
+          <div id="maintenanceList" class="maintenance-list"></div>
+        </section>
+
+        <section class="detail-tab-panel" data-panel="advanced" role="tabpanel" hidden>
+          <div class="detail-section-title">
+            <div>
+              <h3>Tareas avanzadas (PowerShell)</h3>
+              <span id="advancedTasksCount" class="detail-section-note">Sin cargar</span>
+            </div>
+            <button id="advancedTaskButton" class="button primary" type="button">Programar tarea avanzada</button>
+          </div>
+
+          <form id="advancedTaskForm" class="schedule-form hidden">
+            <div class="schedule-form-header">
+              <strong>Nueva tarea avanzada</strong>
+              <span>El comando se ejecutará con PowerShell en el equipo a la fecha indicada.</span>
+            </div>
+
+            <div id="advancedTaskError" class="schedule-error hidden"></div>
+
+            <div class="schedule-grid">
+              <div class="schedule-field">
+                <label for="advancedDate">Fecha y hora de ejecución</label>
+                <input id="advancedDate" type="text" autocomplete="off"
+                       placeholder="dd/mm/aaaa hh:mm" required>
+                <span class="field-hint">Formatos: dd/mm/aaaa hh:mm o aaaa-mm-dd hh:mm. Si solo pones la fecha, se ejecuta a las 00:00.</span>
+              </div>
+
+              <div class="schedule-field">
+                <label for="advancedName">Descripción (opcional)</label>
+                <input id="advancedName" type="text" maxlength="200"
+                       placeholder="p. ej. Reiniciar el servicio de impresión" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="schedule-field">
+              <label for="advancedCommand">Comando de PowerShell</label>
+              <textarea id="advancedCommand" rows="6" maxlength="8000" required
+                        placeholder="Get-Service -Name Spooler | Restart-Service"></textarea>
+              <span class="field-hint">Se ejecuta como SYSTEM, sin ventana y con un tiempo máximo configurable en el agente. Su salida se guardará en el historial.</span>
+            </div>
+
+            <div class="schedule-actions">
+              <button id="advancedTaskCancel" class="details-button" type="button">Descartar</button>
+              <button id="advancedTaskSubmit" class="button primary" type="submit">Programar tarea</button>
+            </div>
+          </form>
+
+          <div id="advancedTaskLoading" class="detail-loading hidden">Cargando tareas avanzadas…</div>
+          <div id="advancedTaskList" class="maintenance-list"></div>
+        </section>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="/js/auth.js?v=0.14.0" defer></script>
+  <script src="/js/sidebar.js?v=0.11.2" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
+  <script src="/lib/signalr.min.js?v=0.12.1" defer></script>
+  <script src="/js/realtime.js?v=0.14.0" defer></script>
+  <script src="/js/equipos.js?v=0.14.0" defer></script>
+</body>
+</html>

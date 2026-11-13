@@ -3,51 +3,198 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
   <title>Tradipres Endpoint Manager</title>
-  <style>
-    :root { font-family: Segoe UI, Arial, sans-serif; color-scheme: light; }
-    body { margin: 0; background: #f3f5f7; color: #17202a; }
-    header { background: #17202a; color: white; padding: 18px 28px; }
-    main { max-width: 1100px; margin: 28px auto; padding: 0 20px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; }
-    .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
-    .label { color: #65707b; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; }
-    .value { margin-top: 8px; font-size: 24px; font-weight: 700; }
-    .ok { color: #16794a; } .bad { color: #b42318; }
-    pre { white-space: pre-wrap; font-size: 13px; }
-  </style>
+  <link rel="stylesheet" href="/css/app.css?v=0.13.0">
 </head>
 <body>
-<header><strong>Tradipres Endpoint Manager</strong> <span style="opacity:.7">v0.2.0</span></header>
-<main>
-  <h1>Servidor Endpoint</h1>
-  <div class="grid">
-    <section class="card"><div class="label">API</div><div id="api" class="value">Comprobando...</div></section>
-    <section class="card"><div class="label">Base de datos</div><div id="db" class="value">Comprobando...</div></section>
-    <section class="card"><div class="label">SQL Server</div><div id="server" class="value">—</div></section>
-    <section class="card"><div class="label">Versión</div><div id="version" class="value">0.2.0</div></section>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegación principal">
+      <div class="brand">
+        <div class="brand-mark">T</div>
+        <div>
+          <strong>Tradipres</strong>
+          <span>Endpoint Manager</span>
+        </div>
+      </div>
+
+      <nav class="nav-list">
+        <a class="nav-item active" href="/" aria-current="page">
+          <span class="nav-icon">⌂</span><span>Dashboard</span>
+        </a>
+        <a class="nav-item" href="/equipos/">
+          <span class="nav-icon">▣</span><span>Equipos</span>
+        </a>
+        <a class="nav-item" href="/Software/"><span class="nav-icon">⬡</span><span>Software</span></a>
+        <a class="nav-item disabled" href="#"><span class="nav-icon">⚙</span><span>Servicios</span></a>
+        <a class="nav-item disabled" href="#"><span class="nav-icon">›_</span><span>PowerShell</span></a>
+        <a class="nav-item disabled" href="#"><span class="nav-icon">✓</span><span>Tareas</span></a>
+        <a class="nav-item" href="/Mantenimientos/"><span class="nav-icon">⟳</span><span>Mantenimientos</span></a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span id="apiIndicator" class="service-dot checking"></span>
+        <div>
+          <strong id="apiState">Comprobando servidor</strong>
+          <span id="serverVersion">Versión —</span>
+        </div>
+        <button id="logoutButton" class="logout-button" type="button">Salir</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Control centralizado</p>
+          <h1>Panel de equipos</h1>
+          <p class="subtitle">Estado de los equipos conectados a Tradipres Endpoint Manager.</p>
+        </div>
+        <div class="topbar-actions">
+          <span class="last-update">Actualizado <strong id="lastUpdate">—</strong></span>
+          <button id="refreshButton" class="button primary" type="button">Actualizar</button>
+        </div>
+      </header>
+
+      <section id="alertBox" class="alert hidden" role="alert"></section>
+
+      <section id="dashboard" class="summary-grid" aria-label="Resumen">
+        <article class="summary-card">
+          <div class="summary-icon neutral">●</div>
+          <div>
+            <span>Total de equipos</span>
+            <strong id="totalCount">—</strong>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-icon online">●</div>
+          <div>
+            <span>Online</span>
+            <strong id="onlineCount">—</strong>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-icon offline">●</div>
+          <div>
+            <span>Offline</span>
+            <strong id="offlineCount">—</strong>
+          </div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-icon database">DB</div>
+          <div>
+            <span>Base de datos</span>
+            <strong id="databaseState">—</strong>
+          </div>
+        </article>
+      </section>
+
+      <section id="equipos" class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Equipos registrados</h2>
+            <p>El listado se actualiza automáticamente cada 15 segundos.</p>
+          </div>
+          <div class="filters">
+            <label class="search-box">
+              <span class="sr-only">Buscar equipos</span>
+              <input id="searchInput" type="search" placeholder="Buscar equipo, usuario o IP…" autocomplete="off">
+            </label>
+            <select id="stateFilter" aria-label="Filtrar por estado">
+              <option value="all">Todos los estados</option>
+              <option value="online">Online</option>
+              <option value="offline">Offline</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Estado</th>
+                <th>Equipo</th>
+                <th>Usuario</th>
+                <th>Sistema operativo</th>
+                <th>IP</th>
+                <th>Agente</th>
+                <th>Último heartbeat</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="equipmentTableBody">
+              <tr><td colspan="8" class="loading-cell">Cargando equipos…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-icon">●</div>
+          <h3>No se han encontrado equipos</h3>
+          <p>Prueba con otro término de búsqueda o cambia el filtro de estado.</p>
+        </div>
+      </section>
+    </main>
   </div>
-  <section class="card" style="margin-top:16px"><div class="label">Diagnóstico</div><pre id="raw">Cargando...</pre></section>
-</main>
-<script>
-(async () => {
-  try {
-    const r = await fetch('./api/status', {cache:'no-store'});
-    const d = await r.json();
-    const ok = r.ok;
-    document.querySelector('#api').textContent = d.api || 'ERROR';
-    document.querySelector('#api').className = 'value ' + (d.api === 'OK' ? 'ok':'bad');
-    document.querySelector('#db').textContent = d.database || 'ERROR';
-    document.querySelector('#db').className = 'value ' + (d.database === 'OK' ? 'ok':'bad');
-    document.querySelector('#server').textContent = d.server || '—';
-    document.querySelector('#version').textContent = d.version || '—';
-    document.querySelector('#raw').textContent = JSON.stringify(d, null, 2);
-  } catch (e) {
-    document.querySelector('#api').textContent = 'ERROR';
-    document.querySelector('#api').className = 'value bad';
-    document.querySelector('#raw').textContent = e.toString();
-  }
-})();
-</script>
+
+  <dialog id="detailsDialog" class="details-dialog">
+    <div class="dialog-header">
+      <div>
+        <p class="eyebrow">Información general</p>
+        <h2 id="detailName">Equipo</h2>
+      </div>
+      <button id="closeDialog" class="icon-button" type="button" aria-label="Cerrar">×</button>
+    </div>
+    <div id="detailStatus" class="detail-status"></div>
+    <div id="detailLoading" class="detail-loading hidden">Cargando información del equipo…</div>
+    <div id="detailContent">
+      <div class="detail-tabs" role="tablist" aria-label="Detalle del equipo">
+        <button class="detail-tab active" type="button" role="tab" aria-selected="true" data-tab="general">General</button>
+        <button class="detail-tab" type="button" role="tab" aria-selected="false" data-tab="hardware">Hardware</button>
+        <button class="detail-tab" type="button" role="tab" aria-selected="false" data-tab="disks">Discos</button>
+        <button class="detail-tab" type="button" role="tab" aria-selected="false" data-tab="software">Software</button>
+        <button class="detail-tab" type="button" role="tab" aria-selected="false" data-tab="maintenance">Mantenimiento</button>
+      </div>
+
+      <div class="detail-tab-panels">
+        <section class="detail-tab-panel active" data-panel="general" role="tabpanel">
+          <h3>Información general</h3>
+          <dl id="detailList" class="detail-grid"></dl>
+        </section>
+
+        <section class="detail-tab-panel" data-panel="hardware" role="tabpanel" hidden>
+          <h3>Hardware e inventario</h3>
+          <dl id="inventoryList" class="detail-grid"></dl>
+        </section>
+
+        <section class="detail-tab-panel" data-panel="disks" role="tabpanel" hidden>
+          <div class="detail-section-title">
+            <h3>Discos</h3>
+            <span id="diskCount" class="detail-section-note"></span>
+          </div>
+          <div id="diskList" class="disk-list"></div>
+        </section>
+
+        <section class="detail-tab-panel" data-panel="software" role="tabpanel" hidden>
+          <div class="software-toolbar">
+            <div>
+              <h3>Software instalado</h3>
+              <span id="softwareCount" class="detail-section-note">Sin cargar</span>
+            </div>
+            <input id="softwareSearch" type="search" placeholder="Buscar programa, versión o fabricante…" autocomplete="off">
+          </div>
+          <div id="softwareLoading" class="detail-loading hidden">Cargando software instalado…</div>
+          <div id="softwareList" class="software-list"></div>
+        </section>
+
+        <section class="detail-tab-panel" data-panel="maintenance" role="tabpanel" hidden>
+          <h3>Último mantenimiento</h3>
+          <div id="maintenanceContent"></div>
+        </section>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="/js/auth.js?v=0.13.0" defer></script>
+  <script src="/js/app.js?v=0.10.2" defer></script>
 </body>
 </html>

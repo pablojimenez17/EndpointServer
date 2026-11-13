@@ -22,7 +22,11 @@ if (-not (Test-Path "IIS:\Sites\$script:SiteName")) {
 }
 
 $identity = "IIS AppPool\$script:AppPoolName"
-icacls $script:DeployPath /grant "${identity}:(OI)(CI)RX" /T /C | Out-Null
+# M (no solo RX): el servidor escribe aquí el estado en JSON
+# (orden_acciones.json, diarios.json). Con solo RX la escritura lanza
+# UnauthorizedAccessException y los endpoints devuelven 500 tras ya
+# haber insertado en la BD (p. ej. al programar un mantenimiento).
+icacls $script:DeployPath /grant "${identity}:(OI)(CI)M" /T /C | Out-Null
 icacls (Join-Path $script:DeployPath 'logs') /grant "${identity}:(OI)(CI)M" /T /C | Out-Null
 
 Write-Host 'IIS configurado correctamente.' -ForegroundColor Green

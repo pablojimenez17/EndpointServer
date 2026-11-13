@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "equipoId": 2,
+    "equipoGuid": "c7eb94d9-8346-4d70-9a1d-1b17e1733b0b",
+    "nombreEquipo": "PTRADI14",
+    "comando": "ping google.com",
+    "fechaEjecucion": "2026-11-13T13:42:00",
+    "estado": "Programada",
+    "fechaCreacion": "2026-11-13T13:40:42.2986038+01:00"
+  }
+]
